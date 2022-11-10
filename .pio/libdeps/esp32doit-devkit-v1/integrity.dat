@@ -1,0 +1,6 @@
+adafruit/Adafruit GFX Library@^1.11.3
+ESPAsyncWebServer-esphome
+adafruit/Adafruit SSD1306@^2.5.7
+makuna/NeoPixelBus@^2.7.0
+AsyncTCP-esphome
+bblanchon/ArduinoJson@^6.17.2
