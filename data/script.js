@@ -7,7 +7,7 @@ function getNomBois(){
             if(this.readyState == 4 && this.status == 200) {
                 if(this.responseText.length > 0) {            
                     var description = JSON.parse(this.responseText);
-                    console.log(description);
+                    
                     for(var i = 0; i < description.results.length; i++) {
                         var nomBois = description.results[i].nom;
                         var idBois = description.results[i].id;
