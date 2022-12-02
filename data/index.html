@@ -1,26 +1,65 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <title>Exemple d<utilisation du Serveur osus ESP32.</title>
-        <meta http-equiv='refresh' name='viewport' content='width=device-width, initial-scale=1' charset='UTF-8'/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script type="text/javascript" src="script.js"></script>
-        <link rel="stylesheet" href="index.css">
-    </head>
+  <head>
+    <link rel="stylesheet" href="index.css" type="text/css">
+    <script type="text/javascript" src="script.js"></script>
+  </head>
+<body>
+  <img src="Sac.png" alt="logo">
+    <!-- <p>Cliquez ici </p>
+    <input type = "button" onclick = "getFromESP_getNom()" value = "Afficher">   -->
+  <h1 data-i18n-key="app-title"> Type de Bois</h1>  
+  <select id="listeBois" size="1" class="choix"></select>
 
-    <body>
-      <div class="myDiv"><h1 class="Test">Ceci est mon exemple</h1>
-        <a href="oui">Button</a>
-      </div>
-      <h1></h1>
-      <select id="nomBois" name="nomBois">
-      </select>
-
-      <div>
-        <h2 id="nomDuBois"></h2>
-        <h2 id="typeBois"></h2>
-        <h2 id="origineBois"></h2>
-        <h2 id="dryingBois"></h2>
-      </div>
-   </body>
-  </html>
+  <h1>Caracteristiques</h1>
+    <div>
+      <table style="border:solid; width: 200px;">
+        <tr>
+          <td>Bois</td>
+          <td>:</td>
+          <td id="nomDuBois"> </td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>:</td>
+          <td id="typeBois"></td>
+        </tr>
+        <tr>
+          <td>Origine </td>
+          <td>:</td>
+          <td id="origineBois"></td>
+        </tr>
+        <tr>
+          <td>Temps de sechage</td>
+          <td>:</td>
+          <td id="dryingBois"> </td>
+        </tr>
+        <tr>
+          <td>Temperature min</td>
+          <td>:</td>
+          <td id="tempMin"></td>
+        </tr>
+      </table>
+    </div>
+    <h3 data-i18n-key="lead"> Controle du four de sechage </h3>
+    <div class="block">
+        <div class="center">
+        <p> Temperature du Four </p>
+        <br>
+        <p class="celcius" id="temp">N/A</p>
+        <br>
+        <button id="four" class="box">Demarrage du four</button>
+        </div>
+          <div class="ligne">
+              <p class="bleu"><span id="nomDuBois2"></span></p>
+              <p class="bleu"><span id="timer"></span>/<span id="dryingBois2"></span> Temps de sechage(sec)</p>
+              <p class="bleu">(min: <span id="tempMin2"></span> Celsuis)</p>
+          <div class="right">
+              <span class="cercleRouge"></span>
+              <span class="cercleOrange"></span>
+              <span class="cercleVert"></span>
+          </div>
+        </div>
+  </div>
+</body>
+</html>

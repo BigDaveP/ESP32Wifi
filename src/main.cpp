@@ -89,7 +89,12 @@ bool splashScreen = true;
 
 #include "TemperatureStub.h"
 TemperatureStub *temperatureStub = NULL;
-float temperature = 0;
+float temperature;
+
+#define GPIO_PIN_LED_HEAT_RED               17 // GPIO25
+#define GPIO_PIN_LED_HEAT_YELLOW             18 // GPIO26
+#define GPIO_PIN_LED_HEAT_GREEN              16 // GPIO27
+String stateLed = "";
 
 //fonction statique qui permet aux objets d'envoyer des messages (callBack) 
 //  arg0 : Action 
@@ -108,23 +113,39 @@ std::string CallBackMessageListener(string message) {
     string arg8 = getValue(message, ' ', 8);
     string arg9 = getValue(message, ' ', 9);
     string arg10 = getValue(message, ' ', 10);
-    
 
-    
     if (string(actionToDo.c_str()).compare(string("button")) == 0) {
         if(string(arg1.c_str()).compare(string("getlisteBois")) == 0) {
-            
-         return(String("Ok").c_str());
+            return(String("Ok").c_str());
             }
-    std::string result = "";
-    return result;
+        if(string(arg1.c_str()).compare(string("getTemperatureSensor")) == 0) {       
+            return(String(temperature).c_str());
+            }
+        if(string(arg1.c_str()).compare(string("LedState")) == 0) {
+            if (isEqualString(arg2.c_str(),"Heat")) {
+                stateLed = "Heat";
+                }
+            else if(isEqualString(arg2.c_str(),"Done")) {
+                stateLed = "Done";
+                }
+            else if(isEqualString(arg2.c_str(),"Cold")) {
+                stateLed = "Cold";
+                }
+            else {
+                stateLed = "Error";
+                }
+            return(String("Ok").c_str());
+            }
     }
+
 }
 
 void setup() { 
     Serial.begin(9600);
     delay(100);
-
+    // ----------- Stub de la temperature ----------------<
+    temperatureStub = new TemperatureStub();
+    temperatureStub->init();
     //Connection au WifiManager
     String ssIDRandom, PASSRandom;
     String stringRandom;
@@ -160,13 +181,10 @@ char strToPrint[128];
         splashScreen = false;
     }
 
-    // ----------- Stub de la temperature ----------------<
-    temperatureStub = new TemperatureStub();
-    temperatureStub->init();
-
-
-
-
+    // ----------- Gestion de la LED ----------------
+    pinMode(GPIO_PIN_LED_HEAT_RED, OUTPUT);
+    pinMode(GPIO_PIN_LED_HEAT_YELLOW, OUTPUT);
+    pinMode(GPIO_PIN_LED_HEAT_GREEN, OUTPUT);
 
  }
 
@@ -179,6 +197,28 @@ void loop() {
         myOled->clearDisplay();
         myOled->printIt(15,15,buffer, 1, 0);
     }
+    Serial.println(stateLed);
+    // ----------- Gestion de la LED ----------------
+    if (isEqualString(stateLed.c_str(),"Cold") && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) {
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
+        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+        }
+    else if(isEqualString(stateLed.c_str(),"Done") && digitalRead((GPIO_PIN_LED_HEAT_GREEN) == LOW)) {
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
+        }
+    else if(isEqualString(stateLed.c_str(),"Heat") && digitalRead((GPIO_PIN_LED_HEAT_YELLOW) == LOW)) {
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
+        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+        }
+    else {
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+        }
     
     delay(2000);
   }
@@ -186,3 +226,4 @@ void loop() {
 void getOledTag() {
     
 }
+
