@@ -68,7 +68,11 @@ setInterval(function getFromEsp_TemperatureSensor(){
     xhttp.send();
     }, 3000);
 
-
+function four(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "sendBoisInfo?drying="+boisChoisi.drying+"&tempMin="+boisChoisi.tempMin, true);
+    xhttp.send();
+}
 
 
 

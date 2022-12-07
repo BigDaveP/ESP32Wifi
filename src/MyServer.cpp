@@ -131,14 +131,23 @@ void MyServer::initAllRoutes() {
         });
 
     this->on("/LedState", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse
-            AsyncWebParameter* p = request->getParam(0); // Récupération de la valeur du premier paramètre de notre requête GET
-            String state = p->value();
-            String sendTo = "button LedState "; 
-            String actionToSend = String(sendTo + state);
-            Serial.println(actionToSend);
-            if (ptrToCallBackFunction) (*ptrToCallBackFunction)(actionToSend.c_str());
-            request->send(200, "text/plain", "LedState");
+        AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse
+        AsyncWebParameter* p = request->getParam(0); // Récupération de la valeur du premier paramètre de notre requête GET
+        String state = p->value();
+        String sendTo = "button LedState "; 
+        String actionToSend = String(sendTo + state);
+        Serial.println(actionToSend);
+        if (ptrToCallBackFunction) (*ptrToCallBackFunction)(actionToSend.c_str());
+        request->send(200, "text/plain", "LedState");
+        });
+    this->on("/sendBoisInfo", HTTP_GET, [](AsyncWebServerRequest *request){
+        AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse
+        AsyncWebParameter* drying = request->getParam(0); // Récupération de la valeur du premier paramètre de notre requête GET
+        AsyncWebParameter* tempMin = request->getParam(1); // Récupération de la valeur du premier paramètre de notre requête GET
+        String sendTo = "button sendBoisInfo ";
+        String actionToSend = String(sendTo + drying->value() + " " + tempMin->value());
+        if (ptrToCallBackFunction) (*ptrToCallBackFunction)(actionToSend.c_str());
+        request->send(200, "text/plain", "sendInfoBois");
         });
 
     this->onNotFound([](AsyncWebServerRequest *request){

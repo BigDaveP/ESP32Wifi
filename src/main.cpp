@@ -96,6 +96,15 @@ float temperature;
 #define GPIO_PIN_LED_HEAT_GREEN              16 // GPIO27
 String stateLed = "";
 
+//Variable pour la gestion des informations du bois reçues
+int drying = 0;
+int dryingBois = 0;
+int tempMin = 0;
+int compteur = 0;
+bool isDrying = false;
+
+int delayOnLoop = 1000;
+
 //fonction statique qui permet aux objets d'envoyer des messages (callBack) 
 //  arg0 : Action 
 // arg1 ... : Parametres
@@ -134,6 +143,14 @@ std::string CallBackMessageListener(string message) {
             else {
                 stateLed = "Error";
                 }
+            return(String("Ok").c_str());
+            }
+        if(string(arg1.c_str()).compare(string("sendBoisInfo")) == 0) {
+            drying = atoi(arg2.c_str());
+            dryingBois = atoi(arg2.c_str());
+            tempMin = atoi(arg3.c_str());
+            isDrying = true;
+            Serial.println(dryingBois);
             return(String("Ok").c_str());
             }
     }
@@ -197,30 +214,47 @@ void loop() {
         myOled->clearDisplay();
         myOled->printIt(15,15,buffer, 1, 0);
     }
-    Serial.println(stateLed);
-    // ----------- Gestion de la LED ----------------
-    if (isEqualString(stateLed.c_str(),"Cold") && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) {
-        digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
-        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
-        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
-        }
-    else if(isEqualString(stateLed.c_str(),"Done") && digitalRead((GPIO_PIN_LED_HEAT_GREEN) == LOW)) {
-        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
-        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
-        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
-        }
-    else if(isEqualString(stateLed.c_str(),"Heat") && digitalRead((GPIO_PIN_LED_HEAT_YELLOW) == LOW)) {
-        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
-        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
-        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
-        }
-    else {
-        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
-        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
-        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
-        }
     
-    delay(2000);
+    if (isDrying == false && digitalRead((GPIO_PIN_LED_HEAT_YELLOW) == LOW)) {
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
+            digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+        }
+    if (isDrying == true)
+    {
+        delayOnLoop = 10;
+        if(drying % 300 == 0) {
+        compteur = drying/300;
+
+        if(dryingBois <= compteur && digitalRead((GPIO_PIN_LED_HEAT_GREEN) == LOW)) {
+            digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
+            }
+        else if(temperature >= tempMin && compteur < dryingBois && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) {
+            digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
+            digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+            }
+        else if(temperature < tempMin && dryingBois > compteur) {
+            //decrease compteur
+            drying -= 10;
+            digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
+            digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+            }
+        else {
+            digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+            digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+            }
+        }
+        drying += 10;
+    }
+    
+    
+    delay(delayOnLoop);
+
   }
 
 void getOledTag() {
