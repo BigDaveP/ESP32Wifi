@@ -74,6 +74,36 @@ function four(){
     xhttp.send();
 }
 
+window.addEventListener("load", getFromEsp_StateLed());
+function getFromEsp_StateLed(){
+    setInterval(function(){
+        console.log("oui");
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                if(this.responseText == "green"){
+                    document.getElementById("cercleVert").style.backgroundColor = "green";
+                    document.getElementById("cercleRouge").style.backgroundColor = "white";
+                    document.getElementById("cercleOrange").style.backgroundColor = "white";
+                }
+                else if(this.responseText == "red"){
+                    document.getElementById("cercleVert").style.backgroundColor = "white";
+                    document.getElementById("cercleRouge").style.backgroundColor = "red";
+                    document.getElementById("cercleOrange").style.backgroundColor = "white";
+                }
+                else if(this.responseText == "yellow"){
+                    document.getElementById("cercleVert").style.backgroundColor = "white";
+                    document.getElementById("cercleRouge").style.backgroundColor = "white";
+                    document.getElementById("cercleOrange").style.backgroundColor = "orange";
+                }
+                
+            }
+        };
+        xhttp.open("GET", "getStateLed", true);
+        xhttp.send();
+    }, 1000);
+    };
+
 
 
 

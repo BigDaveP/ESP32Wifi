@@ -75,34 +75,23 @@ body {
 
   }
 
-.cercleRouge {
+.cercleRouge, .cercleOrange, .cercleVert {
 
     height: 10px;
     width: 10px;
-    background-color : red;
+    background-color : white;
     border-radius: 50%;
     display: inline-block;
     text-align: right;
 }
-
-.cercleOrange {
-
-  height: 10px;
-  width: 10px;
-  background-color : orange;
-  border-radius: 50%;
-  display: inline-block;
-  text-align: right;
+.cercleRouge {
+    border:solid 1px red;
 }
-
+.cercleOrange {
+    border:solid 1px orange;
+}
 .cercleVert {
-
-  height: 10px;
-  width: 10px;
-  background-color : green;
-  border-radius: 50%;
-  display: inline-block;
-  text-align: right;
+    border:solid 1px green;
 }
 
 .ligne {

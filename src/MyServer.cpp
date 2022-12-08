@@ -130,15 +130,11 @@ void MyServer::initAllRoutes() {
         request->send(200, "text/plain", temp);
         });
 
-    this->on("/LedState", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse
-        AsyncWebParameter* p = request->getParam(0); // Récupération de la valeur du premier paramètre de notre requête GET
-        String state = p->value();
-        String sendTo = "button LedState "; 
-        String actionToSend = String(sendTo + state);
-        Serial.println(actionToSend);
-        if (ptrToCallBackFunction) (*ptrToCallBackFunction)(actionToSend.c_str());
-        request->send(200, "text/plain", "LedState");
+    this->on("/getStateLed", HTTP_GET, [](AsyncWebServerRequest *request){
+        std::string repString = "";
+        if (ptrToCallBackFunction) repString = (*ptrToCallBackFunction)("button getStateLed");
+        String stateLed = String(repString.c_str());
+        request->send(200, "text/plain", stateLed);
         });
     this->on("/sendBoisInfo", HTTP_GET, [](AsyncWebServerRequest *request){
         AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse

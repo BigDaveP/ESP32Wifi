@@ -130,28 +130,15 @@ std::string CallBackMessageListener(string message) {
         if(string(arg1.c_str()).compare(string("getTemperatureSensor")) == 0) {       
             return(String(temperature).c_str());
             }
-        if(string(arg1.c_str()).compare(string("LedState")) == 0) {
-            if (isEqualString(arg2.c_str(),"Heat")) {
-                stateLed = "Heat";
-                }
-            else if(isEqualString(arg2.c_str(),"Done")) {
-                stateLed = "Done";
-                }
-            else if(isEqualString(arg2.c_str(),"Cold")) {
-                stateLed = "Cold";
-                }
-            else {
-                stateLed = "Error";
-                }
-            return(String("Ok").c_str());
-            }
         if(string(arg1.c_str()).compare(string("sendBoisInfo")) == 0) {
             drying = atoi(arg2.c_str());
             dryingBois = atoi(arg2.c_str());
             tempMin = atoi(arg3.c_str());
             isDrying = true;
-            Serial.println(dryingBois);
             return(String("Ok").c_str());
+            }
+        if(string(arg1.c_str()).compare(string("getStateLed")) == 0) {
+            return(stateLed.c_str());
             }
     }
 
@@ -230,11 +217,13 @@ void loop() {
             digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
             digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
             digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
+            stateLed = "green";
             }
         else if(temperature >= tempMin && compteur < dryingBois && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) {
             digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
             digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
             digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+            stateLed = "red";
             }
         else if(temperature < tempMin && dryingBois > compteur) {
             //decrease compteur
@@ -242,11 +231,13 @@ void loop() {
             digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
             digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
             digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+            stateLed = "yellow";
             }
         else {
             digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
             digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
             digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+            stateLed = "off";
             }
         }
         drying += 10;
