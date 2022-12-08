@@ -11,8 +11,6 @@ void MyOledViewWorkingHEAT::display(Adafruit_SSD1306 *adafruit){
     adafruit->setTextSize(1);
     adafruit->setCursor(70,20);
     adafruit->print("Heating");
-
-    displayGifFire(adafruit, 80, 30);
     
     adafruit->setTextSize(2);
     adafruit->setCursor(10, 30);
@@ -22,5 +20,6 @@ void MyOledViewWorkingHEAT::display(Adafruit_SSD1306 *adafruit){
 }
 
 void MyOledViewWorkingHEAT::update(Adafruit_SSD1306 *adafruit){
-    Serial.println("Update my view MyOledViewWorkingCOLD");
+    Serial.println("Update my view MyOledViewWorkingHEAT");
+    displayGifFireAnimated(adafruit, 80, 40);
 }

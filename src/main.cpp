@@ -52,18 +52,13 @@
 
 #include <iostream>
 #include <string>
-
 #include <Arduino.h>
 #include <ArduinoJson.h>
-
 #include "myFunctions.cpp" //fonctions utilitaires
+#include <HTTPClient.h>
+#include <WiFiManager.h>
 
 using namespace std;
-
-#include <HTTPClient.h>
-
-
-#include <WiFiManager.h>
 
 WiFiManager wm;
 #define WEBSERVER_H
@@ -71,6 +66,12 @@ WiFiManager wm;
 //Pour la gestion du serveur ESP32
 #include "MyServer.h"
 MyServer *myServer = NULL;
+
+#include "MyOled.h"
+MyOled *myOled = NULL;
+
+#include "MyOledViewWorking.h"
+MyOledViewWorking *myOledViewWorking = NULL;
 
 #include "MyOledViewWifiAp.h"
 MyOledViewWifiAp *myOledViewWifiAp = NULL;
@@ -91,9 +92,6 @@ MyOledViewWorkingHEAT *myOledViewWorkingHEAT = NULL;
 const char *SSID = "Led_";
 const char *PASSWORD = "led_";
 String ssIDRandom;
-
-#include "MyOled.h"
-MyOled *myOled = NULL;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -123,7 +121,7 @@ bool isDrying = false;
 int delayOnLoop = 1000;
 
 #define nomSystem "SAC System"
-string idDuSysteme = "21546";
+string idDuSysteme = "98262";
 
 #include "MyButton.h"
 MyButton *myButtonAction = NULL;
@@ -168,54 +166,6 @@ std::string CallBackMessageListener(string message) {
 
 }
 
-void displayGoodScreen(){
-  delay(10);
-  sprintf(strTemperature, "%g", temperature);
-  if(isEqualString(stateFour.c_str(), string("HEAT"))) myOled->updateCurrentView(myOledViewWorkingHEAT);
-  if(isEqualString(stateFour.c_str(), string("OFF"))) {
-    digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
-    digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
-    digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
-    myOledViewWorkingOFF = new MyOledViewWorkingOFF();
-    myOledViewWorkingOFF->setParams("nomDuSysteme", nomSystem);
-    myOledViewWorkingOFF->setParams("idDuSysteme", idDuSysteme);
-    myOledViewWorkingOFF->setParams("temperature", strTemperature);
-    myOledViewWorkingOFF->setParams("ipDuSysteme",WiFi.localIP().toString().c_str());
-    myOled->displayView(myOledViewWorkingOFF);
-    currentTemperatureDisplayed = temperature;
-  }
-
-  if(isEqualString(stateFour.c_str(), string("COLD"))) {
-    Serial.println("ok");
-    digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
-    digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
-    digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
-    Serial.println("ok2");
-    myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
-    Serial.println("ok3");
-    myOledViewWorkingCOLD->setParams("nomDuSysteme", nomSystem);
-    myOledViewWorkingCOLD->setParams("idDuSysteme", idDuSysteme.c_str());
-    myOledViewWorkingCOLD->setParams("temperature", strTemperature);
-    myOledViewWorkingCOLD->setParams("ipDuSysteme",WiFi.localIP().toString().c_str());
-    Serial.println("ok4");
-    myOled->displayView(myOledViewWorkingCOLD);
-    currentTemperatureDisplayed = temperature;
-  }
-
-  if(isEqualString(stateFour.c_str(), string("HEAT"))) {
-    digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
-    digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
-    digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
-    myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
-    myOledViewWorkingHEAT->setParams("nomDuSysteme", nomSystem);
-    myOledViewWorkingHEAT->setParams("idDuSysteme", idDuSysteme);
-    myOledViewWorkingHEAT->setParams("temperature", strTemperature);
-    myOledViewWorkingHEAT->setParams("ipDuSysteme",WiFi.localIP().toString().c_str());
-    myOled->displayView(myOledViewWorkingHEAT);
-    currentTemperatureDisplayed = temperature;
-  }
-}
-
 void setup() { 
     Serial.begin(9600);
     delay(100);
@@ -227,6 +177,7 @@ void setup() {
     myButtonReset = new MyButton();
     myButtonReset->init(T9);
     int sensibilisationButtonReset = myButtonReset->autoSensibilisation();
+
     char strBoutonAction[128];
     sprintf(strBoutonAction, "%d", sensibilisationButtonAction);
 
@@ -265,10 +216,8 @@ char strToPrint[128];
 
     // ----------- Affichage sur l'écran ----------------
     myOled = new MyOled(&Wire, addrI2C, SCREEN_HEIGHT, SCREEN_WIDTH);
-    if (splashScreen) {
-        myOled->init();
-        splashScreen = false;
-    }
+    myOled->init();
+
     myOledViewInitialisation = new MyOledViewInitialisation();
     myOledViewInitialisation->setIdDuSysteme(idDuSysteme.c_str());
     myOledViewInitialisation->setNomDuSysteme(nomSystem);
@@ -285,49 +234,89 @@ char strToPrint[128];
     myOled->displayView(myOledViewWifiAp);
     delay(2000);
     myOled->clearDisplay();
+    myOledViewWorkingOFF = new MyOledViewWorkingOFF();
+    myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
+    myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
 
     // ----------- Gestion de la LED ----------------
     pinMode(GPIO_PIN_LED_HEAT_RED, OUTPUT);
     pinMode(GPIO_PIN_LED_HEAT_YELLOW, OUTPUT);
     pinMode(GPIO_PIN_LED_HEAT_GREEN, OUTPUT);
-
+    for (int i = 0; i < 2; i++){
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
+        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
+        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
+        delay(500);
+        digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+        digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+        delay(500);
+    }
  }
 
+void displayGoodScreen(){
+  delay(10);
+  sprintf(strTemperature, "%g", temperature);
+  Serial.println(stateFour.c_str());
+  if(isEqualString(stateFour.c_str(), string("OFF"))) {
+    digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+    digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
+    digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+    myOledViewWorkingOFF->setParams("nomDuSysteme", nomSystem);
+    myOledViewWorkingOFF->setParams("idDuSysteme", idDuSysteme);
+    myOledViewWorkingOFF->setParams("temperature", strTemperature);
+    myOledViewWorkingOFF->setParams("ipDuSysteme",WiFi.localIP().toString().c_str());
+    myOled->displayView(myOledViewWorkingOFF);
+    currentTemperatureDisplayed = temperature;
+  }
+
+  if(isEqualString(stateFour.c_str(), string("COLD"))) {
+    digitalWrite(GPIO_PIN_LED_HEAT_RED, HIGH);
+    digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+    digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, LOW);
+    myOledViewWorkingCOLD->setParams("nomDuSysteme", nomSystem);
+    myOledViewWorkingCOLD->setParams("idDuSysteme", idDuSysteme.c_str());
+    myOledViewWorkingCOLD->setParams("temperature", strTemperature);
+    myOledViewWorkingCOLD->setParams("ipDuSysteme",WiFi.localIP().toString().c_str());
+    myOled->displayView(myOledViewWorkingCOLD);
+    currentTemperatureDisplayed = temperature;
+  }
+
+  if(isEqualString(stateFour.c_str(), string("HEAT"))) {
+    digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
+    digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
+    digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
+    myOledViewWorkingHEAT->setParams("nomDuSysteme", nomSystem);
+    myOledViewWorkingHEAT->setParams("idDuSysteme", idDuSysteme);
+    myOledViewWorkingHEAT->setParams("temperature", strTemperature);
+    myOledViewWorkingHEAT->setParams("ipDuSysteme",WiFi.localIP().toString().c_str());
+    myOled->displayView(myOledViewWorkingHEAT);
+    currentTemperatureDisplayed = temperature;
+    myOled->updateCurrentView(myOledViewWorkingHEAT);
+  }
+}
 
 void loop() {
     temperature = temperatureStub->getTemperature();
-    if (isDrying == false && digitalRead((GPIO_PIN_LED_HEAT_YELLOW) == LOW)) {
-            digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
-            digitalWrite(GPIO_PIN_LED_HEAT_YELLOW, HIGH);
-            digitalWrite(GPIO_PIN_LED_HEAT_GREEN, LOW);
-        }
-    if (isDrying == true)
-    {
+    if (isDrying == true) {
         delayOnLoop = 10;
-        if(drying % 300 == 0) {
-        compteur = drying/300;
-
-        if(dryingBois <= compteur && digitalRead((GPIO_PIN_LED_HEAT_GREEN) == LOW)) {
-            stateFour = "DONE";
-            }
-        else if(temperature >= tempMin && compteur < dryingBois && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) {
-            stateFour = "HEAT";
-            }
+        if(drying % 1000 == 0) {
+        compteur = drying/1000;
+        Serial.println(compteur);
+        Serial.println(dryingBois);
+        if(temperature >= tempMin && compteur < dryingBois && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) stateFour = "HEAT";
         else if(temperature < tempMin && dryingBois > compteur) {
-            //decrease compteur
             drying -= 10;
+            delay(1000);
             stateFour = "COLD";
             }
-        else {
-            stateFour = "OFF";
-            }
+        else stateFour = "OFF";
+        displayGoodScreen();
+
         }
         drying += 10;
     }
-    
-    
     delay(delayOnLoop);
-    displayGoodScreen();
   }
 
 

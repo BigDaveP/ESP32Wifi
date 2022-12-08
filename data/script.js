@@ -81,20 +81,24 @@ function getFromEsp_StateLed(){
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function(){
             if(this.readyState == 4 && this.status == 200){
-                if(this.responseText == "DONE"){
+                console.log(this.responseText);
+                if(this.responseText == "OFF"){
                     document.getElementById("cercleVert").style.backgroundColor = "green";
                     document.getElementById("cercleRouge").style.backgroundColor = "white";
                     document.getElementById("cercleOrange").style.backgroundColor = "white";
+                    document.getElementById("four").removeAttribute("disabled", "true");
                 }
                 else if(this.responseText == "COLD"){
                     document.getElementById("cercleVert").style.backgroundColor = "white";
                     document.getElementById("cercleRouge").style.backgroundColor = "red";
                     document.getElementById("cercleOrange").style.backgroundColor = "white";
+                    document.getElementById("four").setAttribute("disabled", "true");
                 }
                 else if(this.responseText == "HEAT"){
                     document.getElementById("cercleVert").style.backgroundColor = "white";
                     document.getElementById("cercleRouge").style.backgroundColor = "white";
                     document.getElementById("cercleOrange").style.backgroundColor = "orange";
+                    document.getElementById("four").setAttribute("disabled", "true");
                 }
                 
             }
