@@ -100,8 +100,8 @@ MyOledViewWorkingCOLD *myOledViewWorkingCOLD = NULL;
 MyOledViewWorkingHEAT *myOledViewWorkingHEAT = NULL;
 
 //Variable pour la connection Wifi
-const char *SSID = "Led_";
-const char *PASSWORD = "led_";
+const char *SSID = "SAC_";
+const char *PASSWORD = "sac_";
 String ssIDRandom;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
