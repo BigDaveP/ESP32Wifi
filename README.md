@@ -5,4 +5,4 @@ Connection à L'api :
 
 Doc: http://167.114.96.59/doc
 
-Accès auz informations des bois avec :  http://167.114.96.59:8080/bois/ ou http://167.114.96.59:8080/bois/:id
+Accès aux informations des bois avec :  http://167.114.96.59:8080/bois/ ou http://167.114.96.59:8080/bois/:id
