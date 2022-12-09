@@ -20,6 +20,7 @@ void MyOledViewWifiAp::update(Adafruit_SSD1306 *adafruit){
 }
 
 void MyOledViewWifiAp::display(Adafruit_SSD1306 *adafruit){
+    adafruit->clearDisplay();
     adafruit->setTextSize(2);
     adafruit->setCursor(0, 0);
     adafruit->print(nomDuSysteme.c_str());

@@ -225,7 +225,6 @@ char strToPrint[128];
     myOledViewInitialisation->setSensibiliteBoutonReset(strBoutonReset);
     myOled->displayView(myOledViewInitialisation);
     delay(2000);
-    myOled->clearDisplay();
 
     myOledViewWifiAp = new MyOledViewWifiAp();
     myOledViewWifiAp->setNomDuSysteme(nomSystem);
@@ -233,7 +232,7 @@ char strToPrint[128];
     myOledViewWifiAp->setPassDuSysteme(PASSRandom.c_str());
     myOled->displayView(myOledViewWifiAp);
     delay(2000);
-    myOled->clearDisplay();
+
     myOledViewWorkingOFF = new MyOledViewWorkingOFF();
     myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
     myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();

@@ -6,7 +6,7 @@
 using namespace std;
 
 void MyOledViewWorkingCOLD::display(Adafruit_SSD1306 *adafruit){
-
+    adafruit->clearDisplay();
     MyOledViewWorking::display(adafruit);
     adafruit->setTextSize(1);
     adafruit->setCursor(70,20);
