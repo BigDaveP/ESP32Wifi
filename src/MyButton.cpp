@@ -1,8 +1,8 @@
 /**
     Gestion d'un bouton pour permettre au système de démarrer
     @file MyButton.cpp
-    @author Alex De Souza
-    @version 1.0 09/09/22  
+    @author Alain Dubé
+    @version 1.0 17/03/21  
 */
 
 #include "MyButton.h"

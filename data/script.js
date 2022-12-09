@@ -1,4 +1,9 @@
-
+/**
+    Gestion de la vue
+    @file script.js
+    @author David Pigeon
+    @version 1.0 2022-12-09  
+*/
 var boisChoisi;
 var temperature = 0;
 window.addEventListener("load", getNomBois());
@@ -26,7 +31,6 @@ function getNomBois(){
 }
 function getCaracteristiqueBois(){
     var idBois = document.getElementById("listeBois").value;
-    console.log(idBois);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function()
         {
@@ -72,16 +76,32 @@ function four(){
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "sendBoisInfo?drying="+boisChoisi.drying+"&tempMin="+boisChoisi.tempMin, true);
     xhttp.send();
+    startCountdown();
+}
+
+function startCountdown(){
+    var timeToWait = document.getElementById("dryingBois2").innerText;
+    var i = -1;
+    var temp = parseFloat(temperature);
+    var timer = setInterval(function (){
+        i++;
+        document.getElementById("timer").innerText = i;
+        if(temp < boisChoisi.tempMin){
+            i--;
+        }
+        if(i == timeToWait){
+            document.getElementById("timer").innerText = "0";
+            clearInterval(timer);
+        }
+    }, 1000);
 }
 
 window.addEventListener("load", getFromEsp_StateLed());
 function getFromEsp_StateLed(){
     setInterval(function(){
-        console.log("oui");
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function(){
             if(this.readyState == 4 && this.status == 200){
-                console.log(this.responseText);
                 if(this.responseText == "OFF"){
                     document.getElementById("cercleVert").style.backgroundColor = "green";
                     document.getElementById("cercleRouge").style.backgroundColor = "white";

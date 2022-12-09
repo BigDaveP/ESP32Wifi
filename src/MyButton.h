@@ -1,7 +1,7 @@
 /**
     Class MyButton : Gestion d'un bouton TOUCH sur ESP32
     @file MyButton.h 
-    @author Alex De Souza
+    @author Alain Dubé
     @version 1.0 17/03/21  
     
     Historique des versions   

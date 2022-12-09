@@ -1,4 +1,4 @@
-/* Copyright (C) 2021 Alain Dube
+/* Copyright (C) 2021 David Pigeon
  * All rights reserved.
  *
  * Projet Sac
@@ -6,21 +6,33 @@
  * Cours Objets connectés (c)2021
  *  
     @file     main.cpp
-    @author   Alain Dubé
+    @author   David Pigeon
     @version  1.1 21/08/15 
 
     Historique des versions
            Version    Date       Auteur       Description
            1.1        21/08/15  Alain       Première version du logiciel
+            1.2        22/10/07  David Pigeon       Ajout de la gestion Wifi
+            1.3        22/11/17  David Pigeon       Ajout de la gestion de l'écran OLED
+            1.5        22/12/09  David Pigeon       Version finale
 
     platform = espressif32
     board = esp32doit-devkit-v1
     framework = arduino
     lib_deps = 
-                      
+
+            --Pour le Wifi
+
             ESPAsyncWebServer-esphome                   (Pour accéder au Wifi)
-            AsyncTCP-esphome                            (Pour utiliser les focntionnalités TCP)
+            AsyncTCP-esphome                            (Pour utiliser les fonctionnalités TCP)
             bblanchon/ArduinoJson@^6.17.2               (Pour accéder au fonctionnalités Json)
+
+            --Pour l'écran OLED
+            Adafruit SSD1306                            (Pour accéder au fonctionnalités de l'écran OLED)
+            Adafruit GFX Library                        (Pour accéder au fonctionnalités de l'écran OLED)
+            Adafruit BusIO                              (Pour accéder au fonctionnalités de l'écran OLED)
+
+
 
     Autres librairies (à copier dans le répertoire lib)
          WifiManagerDevelopment
@@ -28,6 +40,9 @@
             //Pour trouver le WifiManager (dans la branche development)
             //   https://github.com/tzapu/WiFiManager/tree/development
             //   Ne pas oublier d'appuyez sur l'ampoule et choisir : ajouter Lib
+                    /lib/DHT/DHT.cpp
+        Pour obtenir la température
+        float getTemperature()
     
     Fonctions utiles (utilitaires)
         /lib/MYLIB/myFunctions.cpp
@@ -39,6 +54,7 @@
             bool replaceAll(std::string& source, const std::string& from, const std::string& to)
             //Pour obtenir un chaine aléatoire d'une certaine longeur
             std::string get_random_string(unsigned int len)
+        
 
     Classes du système
          
@@ -67,24 +83,19 @@ WiFiManager wm;
 #include "MyServer.h"
 MyServer *myServer = NULL;
 
+//Pour la gestion de l'écran OLED
 #include "MyOled.h"
 MyOled *myOled = NULL;
-
 #include "MyOledViewWorking.h"
 MyOledViewWorking *myOledViewWorking = NULL;
-
 #include "MyOledViewWifiAp.h"
 MyOledViewWifiAp *myOledViewWifiAp = NULL;
-
 #include "MyOledViewInitialisation.h"
 MyOledViewInitialisation *myOledViewInitialisation = NULL;
-
 #include "MyOledViewWorkingOFF.h"
 MyOledViewWorkingOFF *myOledViewWorkingOFF = NULL;
-
 #include "MyOledViewWorkingCOLD.h"
 MyOledViewWorkingCOLD *myOledViewWorkingCOLD = NULL;
-
 #include "MyOledViewWorkingHEAT.h"
 MyOledViewWorkingHEAT *myOledViewWorkingHEAT = NULL;
 
@@ -97,8 +108,7 @@ String ssIDRandom;
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 #define OLED_RESET     15 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define addrI2C 0x3C
-bool splashScreen = true;
+#define addrI2C 0x3C    // I2C address of the OLED display
 
 #include "TemperatureStub.h"
 TemperatureStub *temperatureStub = NULL;
@@ -118,10 +128,11 @@ int tempMin = 0;
 int compteur = 0;
 bool isDrying = false;
 
+//Valeur par défaut pour le delay entre chaque boucle
 int delayOnLoop = 1000;
 
 #define nomSystem "SAC System"
-string idDuSysteme = "98262";
+string idDuSysteme = "12815";
 
 #include "MyButton.h"
 MyButton *myButtonAction = NULL;
@@ -137,13 +148,6 @@ std::string CallBackMessageListener(string message) {
     string arg1 = getValue(message, ' ', 1);
     string arg2 = getValue(message, ' ', 2);
     string arg3 = getValue(message, ' ', 3);
-    string arg4 = getValue(message, ' ', 4);
-    string arg5 = getValue(message, ' ', 5);
-    string arg6 = getValue(message, ' ', 6);
-    string arg7 = getValue(message, ' ', 7);
-    string arg8 = getValue(message, ' ', 8);
-    string arg9 = getValue(message, ' ', 9);
-    string arg10 = getValue(message, ' ', 10);
 
     if (string(actionToDo.c_str()).compare(string("button")) == 0) {
         if(string(arg1.c_str()).compare(string("getlisteBois")) == 0) {
@@ -169,7 +173,8 @@ std::string CallBackMessageListener(string message) {
 void setup() { 
     Serial.begin(9600);
     delay(100);
-      //Initialisation des boutons
+
+    // ----------- Initialisation des buttons autosensibilisé ---------------->
     myButtonAction = new MyButton();
     myButtonAction->init(T8);
     int sensibilisationButtonAction = myButtonAction->autoSensibilisation();
@@ -183,10 +188,13 @@ void setup() {
 
     char strBoutonReset[128];
     sprintf(strBoutonReset, "%d", sensibilisationButtonReset);
+
     // ----------- Stub de la temperature ----------------<
     temperatureStub = new TemperatureStub();
     temperatureStub->init();
-    //Connection au WifiManager
+
+
+    // ----------- Connexion pour WifiManager ---------------->
     String ssIDRandom, PASSRandom;
     String stringRandom;
     stringRandom = get_random_string(4).c_str();
@@ -237,7 +245,7 @@ char strToPrint[128];
     myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
     myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
 
-    // ----------- Gestion de la LED ----------------
+    // ----------- Gestion des LEDs ----------------
     pinMode(GPIO_PIN_LED_HEAT_RED, OUTPUT);
     pinMode(GPIO_PIN_LED_HEAT_YELLOW, OUTPUT);
     pinMode(GPIO_PIN_LED_HEAT_GREEN, OUTPUT);
@@ -253,10 +261,10 @@ char strToPrint[128];
     }
  }
 
+// Fonction qui permet de définir les différents états du four et de gérer les différents affichages
 void displayGoodScreen(){
   delay(10);
   sprintf(strTemperature, "%g", temperature);
-  Serial.println(stateFour.c_str());
   if(isEqualString(stateFour.c_str(), string("OFF"))) {
     digitalWrite(GPIO_PIN_LED_HEAT_RED, LOW);
     digitalWrite(GPIO_PIN_LED_HEAT_GREEN, HIGH);
@@ -299,19 +307,16 @@ void loop() {
     temperature = temperatureStub->getTemperature();
     if (isDrying == true) {
         delayOnLoop = 10;
-        if(drying % 1000 == 0) {
+        if(drying % 1000 == 0) { // Modulo pour éviter de compter à chaque boucle
         compteur = drying/1000;
-        Serial.println(compteur);
-        Serial.println(dryingBois);
         if(temperature >= tempMin && compteur < dryingBois && digitalRead((GPIO_PIN_LED_HEAT_RED) == LOW)) stateFour = "HEAT";
         else if(temperature < tempMin && dryingBois > compteur) {
-            drying -= 10;
+            drying -= 10; // On enlève une valeur de 10 pour éviter que le compteur s'incrémente
             delay(1000);
             stateFour = "COLD";
             }
         else stateFour = "OFF";
         displayGoodScreen();
-
         }
         drying += 10;
     }

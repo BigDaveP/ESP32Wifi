@@ -1,3 +1,9 @@
+/**
+    Gestion d'une VUE pour le OLed : Base pour les écrans de travail
+    @file MyOledViewWorkingHEAT.cpp
+    @author David Pigeon
+    @version 1.1 22/12/09 
+*/
 
 #include <Arduino.h>
 #include "MyOledViewWorkingHEAT.h"
@@ -21,5 +27,5 @@ void MyOledViewWorkingHEAT::display(Adafruit_SSD1306 *adafruit){
 
 void MyOledViewWorkingHEAT::update(Adafruit_SSD1306 *adafruit){
     Serial.println("Update my view MyOledViewWorkingHEAT");
-    displayGifFireAnimated(adafruit, 80, 40);
+    //displayGifFireAnimated(adafruit, 80, 40); Non fonctionnel
 }

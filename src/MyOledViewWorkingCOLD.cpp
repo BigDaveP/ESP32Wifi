@@ -1,4 +1,9 @@
-
+/**
+    Gestion d'une VUE pour le OLed : Base pour les écrans de travail
+    @file MyOledViewWorkingCold.cpp
+    @author David Pigeon
+    @version 1.1 22/12/09 
+*/
 
 #include <Arduino.h>
 #include "MyOledViewWorkingCOLD.h"

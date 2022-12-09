@@ -1,4 +1,9 @@
-
+/*
+    Gestion d'une VUE pour le OLed (Initialisation du système)
+    @file MyOledViewInitialisation.cpp
+    @author David Pigeon
+    @version 1.0 22/12/02
+*/
 #include <Arduino.h>
 #include "MyOledViewInitialisation.h"
 using namespace std;
