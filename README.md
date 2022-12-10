@@ -34,10 +34,13 @@
         /lib/MYLIB/myFunctions.cpp
             //Pour vérifier plus simplement que deux chaines sont identiques
             bool isEqualString(std::string line1, std::string line2)
+            
             //Pour extraire une partie d'une chaine de caractères avec l'aide d'un index
-            std::string getValue(std::string data, char separator, int index)
+            std::string getValue(std::string data, char separator, int index).
+            
             //Pour remplacer plus facilement une sous chaine
             bool replaceAll(std::string& source, const std::string& from, const std::string& to)
+            
             //Pour obtenir un chaine aléatoire d'une certaine longeur
             std::string get_random_string(unsigned int len)
             
