@@ -44,7 +44,13 @@
             //Pour obtenir un chaine aléatoire d'une certaine longeur
             std::string get_random_string(unsigned int len)
             
-            
+ - Classes du système
+         
+        MyServer                        V1.0    Pour la gestion des routes pour le site WEB
+            /data                               Répertoire qui contient les fichiers du site WEB 
+                index.html              V1.0    Page index du site WEB
+                index.css               V1.0    CSS
+                script.js               V1.0    JS (fonctions JavaScript)
 
 # Connection à L'api
 167.114.96.59
